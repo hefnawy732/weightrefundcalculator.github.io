@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .item-box {
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .item-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .item-box input {
+            width: calc(100% - 22px); /* Adjust width to fit within box */
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Refund Calculator</h1>
+        
+        <div class="form-group">
+            <label for="orderNumber">Order Number:</label>
+            <input type="number" id="orderNumber">
+        </div>
+        <div class="form-group">
+            <label for="shopperId">Shopper ID/Shopper's Name:</label>
+            <input type="text" id="shopperId">
+        </div>
+        <div class="form-group">
+            <label for="storeName">Store Name:</label>
+            <input type="text" id="storeName">
+        </div>
+        <div class="form-group">
+            <button id="showDetailsButton">Submit</button>
+        </div>
+        
+        <div id="refundDetails" class="hidden">
+            <h2>Less Weight Details</h2>
+            <div id="itemsContainer"></div>
+            <div class="form-group">
+                <button id="addItemButton">Add Item</button>
+            </div>
+            <div class="form-group">
+                <button id="calculateRefundButton">Calculate Refund</button>
+            </div>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('showDetailsButton').addEventListener('click', function() {
+            const refundDetails = document.getElementById('refundDetails');
+            refundDetails.classList.remove('hidden');
+        });
+        
+        let itemCounter = 1;
+
+        document.getElementById('addItemButton').addEventListener('click', function() {
+            const container = document.getElementById('itemsContainer');
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('item-box');
+            itemDiv.innerHTML = `
+                <label for="itemName${itemCounter}">Item's Name:</label>
+                <input type="text" id="itemName${itemCounter}">
+                <label for="orderedWeight${itemCounter}">Ordered Weight:</label>
+                <input type="number" id="orderedWeight${itemCounter}">
+                <label for="pricePerApp${itemCounter}">Price as per Shopper APP:</label>
+                <input type="number" id="pricePerApp${itemCounter}">
+                <label for="receivedWeight${itemCounter}">Received Weight:</label>
+                <input type="number" id="receivedWeight${itemCounter}">
+                <label for="actualPrice${itemCounter}">Actual Price:</label>
+                <input type="number" id="actualPrice${itemCounter}">
+            `;
+            
+            container.appendChild(itemDiv);
+            itemCounter++;
+        });
+
+        document.getElementById('calculateRefundButton').addEventListener('click', function() {
+            const orderNumber = document.getElementById('orderNumber').value;
+            const shopperId = document.getElementById('shopperId').value;
+            const storeName = document.getElementById('storeName').value;
+
+            let resultHTML = `
+                <h3>Refund Details</h3>
+                <p><strong>Order Number:</strong> ${orderNumber}</p>
+                <p><strong>Shopper ID/Shopper's Name:</strong> ${shopperId}</p>
+                <p><strong>Store Name:</strong> ${storeName}</p>
+                <p><strong>Type of Refund:</strong> Less Weight</p>
+            `;
+
+            let totalMissingWeight = 0;
+            let totalExpectedPrice = 0;
+            let totalActualPrice = 0;
+
+            for (let i = 1; i < itemCounter; i++) {
+                const orderedWeight = parseFloat(document.getElementById(`orderedWeight${i}`).value) || 0;
+                const pricePerApp = parseFloat(document.getElementById(`pricePerApp${i}`).value) || 0;
+                const receivedWeight = parseFloat(document.getElementById(`receivedWeight${i}`).value) || 0;
+                const actualPrice = parseFloat(document.getElementById(`actualPrice${i}`).value) || 0;
+                
+                const missingWeight = orderedWeight - receivedWeight;
+                const gramPrice = pricePerApp / orderedWeight;
+                const expectedPrice = gramPrice * receivedWeight;
+                const refund = actualPrice - expectedPrice;
+                
+                totalMissingWeight += missingWeight;
+                totalExpectedPrice += expectedPrice;
+                totalActualPrice += actualPrice;
+
+                resultHTML += `
+                    <div class="item-box">
+                        <p><strong>Item ${i}</strong></p>
+                        <p>Ordered Weight: ${orderedWeight.toFixed(2)}g</p>
+                        <p>Received Weight: ${receivedWeight.toFixed(2)}g</p>
+                        <p>Missing Weight: ${missingWeight.toFixed(2)}g</p>
+                        <p>Cx should pay: AED${expectedPrice.toFixed(2)}</p>
+                        <p>Cx paid: AED${actualPrice.toFixed(2)}</p>
+                        <p>Refund: AED${refund.toFixed(2)}</p>
+                    </div>
+                `;
+            }
+
+            resultHTML += `
+                <h3>Total</h3>
+                <p><strong>Total Refund:</strong> AED${(totalActualPrice - totalExpectedPrice).toFixed(2)}</p>
+            `;
+            
+            document.getElementById('result').innerHTML = resultHTML;
+        });
+    </script>
+</body>
+</html>
