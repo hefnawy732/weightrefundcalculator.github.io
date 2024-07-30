@@ -38,7 +38,7 @@
             border-radius: 4px;
         }
         .form-group button {
-            background-color: #007bff;
+            background-color: #12ab43;
             color: white;
             border: none;
             padding: 10px 15px;
@@ -46,7 +46,7 @@
             cursor: pointer;
         }
         .form-group button:hover {
-            background-color: #0056b3;
+            background-color: #047827;
         }
         .hidden {
             display: none;
@@ -99,10 +99,11 @@
         </div>
         <div class="form-group">
             <button id="showDetailsButton">Submit</button>
+            <button id="resetButton">Reset</button>
         </div>
         
         <div id="refundDetails" class="hidden">
-            <h2>Less Weight Details</h2>
+            <h2>Submit</h2>
             <div id="itemsContainer"></div>
             <div class="form-group">
                 <button id="addItemButton">Add Item</button>
@@ -119,6 +120,24 @@
             const refundDetails = document.getElementById('refundDetails');
             refundDetails.classList.remove('hidden');
         });
+
+        document.getElementById('resetButton').addEventListener('click', function() {
+            // Clear all input fields
+            document.getElementById('orderNumber').value = '';
+            document.getElementById('shopperId').value = '';
+            document.getElementById('storeName').value = '';
+
+            // Clear all items
+            const itemsContainer = document.getElementById('itemsContainer');
+            itemsContainer.innerHTML = '';
+
+            // Reset item counter
+            itemCounter = 1;
+
+            // Hide refund details and result
+            document.getElementById('refundDetails').classList.add('hidden');
+            document.getElementById('result').innerHTML = '';
+        });
         
         let itemCounter = 1;
 
@@ -130,13 +149,13 @@
             itemDiv.innerHTML = `
                 <label for="itemName${itemCounter}">Item's Name:</label>
                 <input type="text" id="itemName${itemCounter}">
-                <label for="orderedWeight${itemCounter}">Ordered Weight:</label>
+                <label for="orderedWeight${itemCounter}">Ordered Weight (gm):</label>
                 <input type="number" id="orderedWeight${itemCounter}">
-                <label for="pricePerApp${itemCounter}">Price as per Shopper APP:</label>
+                <label for="pricePerApp${itemCounter}">Price as per Shopper APP (AED):</label>
                 <input type="number" id="pricePerApp${itemCounter}">
-                <label for="receivedWeight${itemCounter}">Received Weight:</label>
+                <label for="receivedWeight${itemCounter}">Received Weight (gm):</label>
                 <input type="number" id="receivedWeight${itemCounter}">
-                <label for="actualPrice${itemCounter}">Actual Price:</label>
+                <label for="actualPrice${itemCounter}">Actual Price (AED):</label>
                 <input type="number" id="actualPrice${itemCounter}">
             `;
             
@@ -162,6 +181,7 @@
             let totalActualPrice = 0;
 
             for (let i = 1; i < itemCounter; i++) {
+                const itemName = document.getElementById(`itemName${i}`).value || 'N/A';
                 const orderedWeight = parseFloat(document.getElementById(`orderedWeight${i}`).value) || 0;
                 const pricePerApp = parseFloat(document.getElementById(`pricePerApp${i}`).value) || 0;
                 const receivedWeight = parseFloat(document.getElementById(`receivedWeight${i}`).value) || 0;
@@ -178,7 +198,7 @@
 
                 resultHTML += `
                     <div class="item-box">
-                        <p><strong>Item ${i}</strong></p>
+                        <p><strong>Item ${i} - ${itemName}</strong></p>
                         <p>Ordered Weight: ${orderedWeight.toFixed(2)}g</p>
                         <p>Received Weight: ${receivedWeight.toFixed(2)}g</p>
                         <p>Missing Weight: ${missingWeight.toFixed(2)}g</p>
