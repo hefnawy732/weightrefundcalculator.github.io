@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f4f4f9;
+            background-color: #F4F4F9;
         }
         h1 {
             color: #333;
@@ -38,7 +38,7 @@
             border-radius: 4px;
         }
         .form-group button {
-            background-color: #12ab43;
+            background-color: #12AB43;
             color: white;
             border: none;
             padding: 10px 15px;
@@ -54,7 +54,7 @@
         .result {
             margin-top: 20px;
             padding: 15px;
-            background-color: #e9ecef;
+            background-color: #E9ECEF;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
@@ -65,7 +65,7 @@
         .item-box {
             padding: 15px;
             margin-bottom: 15px;
-            background-color: #f9f9f9;
+            background-color: #F9F9F9;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -84,7 +84,6 @@
 <body>
     <div class="container">
         <h1>Refund Calculator</h1>
-        
         <div class="form-group">
             <label for="orderNumber">Order Number:</label>
             <input type="number" id="orderNumber">
@@ -101,7 +100,6 @@
             <button id="showDetailsButton">Submit</button>
             <button id="resetButton">Reset</button>
         </div>
-        
         <div id="refundDetails" class="hidden">
             <h2>Calculate Weight Variance</h2>
             <div id="itemsContainer"></div>
@@ -114,36 +112,24 @@
             <div id="result" class="result"></div>
         </div>
     </div>
-    
     <script>
         document.getElementById('showDetailsButton').addEventListener('click', function() {
-            const refundDetails = document.getElementById('refundDetails');
-            refundDetails.classList.remove('hidden');
+            document.getElementById('refundDetails').classList.remove('hidden');
         });
 
         document.getElementById('resetButton').addEventListener('click', function() {
-            // Clear all input fields
             document.getElementById('orderNumber').value = '';
             document.getElementById('shopperId').value = '';
             document.getElementById('storeName').value = '';
-
-            // Clear all items
-            const itemsContainer = document.getElementById('itemsContainer');
-            itemsContainer.innerHTML = '';
-
-            // Reset item counter
-            itemCounter = 1;
-
-            // Hide refund details and result
+            document.getElementById('itemsContainer').innerHTML = '';
             document.getElementById('refundDetails').classList.add('hidden');
             document.getElementById('result').innerHTML = '';
+            itemCounter = 1; // Reset item counter
         });
-        
-        let itemCounter = 1;
 
+        let itemCounter = 1;
         document.getElementById('addItemButton').addEventListener('click', function() {
             const container = document.getElementById('itemsContainer');
-            
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('item-box');
             itemDiv.innerHTML = `
@@ -158,7 +144,6 @@
                 <label for="actualPrice${itemCounter}">Actual Price (AED):</label>
                 <input type="number" id="actualPrice${itemCounter}">
             `;
-            
             container.appendChild(itemDiv);
             itemCounter++;
         });
@@ -167,54 +152,58 @@
             const orderNumber = document.getElementById('orderNumber').value;
             const shopperId = document.getElementById('shopperId').value;
             const storeName = document.getElementById('storeName').value;
-
             let resultHTML = `
                 <h3>Refund Details</h3>
                 <p><strong>Order Number:</strong> ${orderNumber}</p>
                 <p><strong>Shopper ID/Shopper's Name:</strong> ${shopperId}</p>
                 <p><strong>Store Name:</strong> ${storeName}</p>
-                <p><strong>Type of Refund:</strong> Less Weight</p>
             `;
-
-            let totalMissingWeight = 0;
-            let totalExpectedPrice = 0;
-            let totalActualPrice = 0;
-
+            let totalRefund = 0;
             for (let i = 1; i < itemCounter; i++) {
                 const itemName = document.getElementById(`itemName${i}`).value || 'N/A';
                 const orderedWeight = parseFloat(document.getElementById(`orderedWeight${i}`).value) || 0;
                 const pricePerApp = parseFloat(document.getElementById(`pricePerApp${i}`).value) || 0;
                 const receivedWeight = parseFloat(document.getElementById(`receivedWeight${i}`).value) || 0;
                 const actualPrice = parseFloat(document.getElementById(`actualPrice${i}`).value) || 0;
-                
-                const missingWeight = orderedWeight - receivedWeight;
                 const gramPrice = pricePerApp / orderedWeight;
                 const expectedPrice = gramPrice * receivedWeight;
-                const refund = actualPrice - expectedPrice;
-                
-                totalMissingWeight += missingWeight;
-                totalExpectedPrice += expectedPrice;
-                totalActualPrice += actualPrice;
+                let refund = 0;
+                let refundType = '';
+
+                if (receivedWeight > orderedWeight) {
+                    refund = actualPrice - expectedPrice;
+                    refundType = 'Extra Weight';
+                } else if (receivedWeight < orderedWeight) {
+                    refund = actualPrice - expectedPrice;
+                    refundType = 'Less Weight';
+                } else if (gramPrice != (actualPrice / receivedWeight)) {
+                    refund = actualPrice - expectedPrice;
+                    refundType = 'Price Variance';
+                }
+
+                totalRefund += refund;
 
                 resultHTML += `
                     <div class="item-box">
+                        <p><strong>Type: ${refundType}</strong></p>
                         <p><strong>Item ${i} - ${itemName}</strong></p>
-                        <p>Ordered Weight: ${orderedWeight.toFixed(2)}g</p>
-                        <p>Received Weight: ${receivedWeight.toFixed(2)}g</p>
-                        <p>Missing Weight: ${missingWeight.toFixed(2)}g</p>
-                        <p>Price per gram: AED${gramPrice.toFixed(2)}</p>
+                        <p>Ordered Weight: ${orderedWeight.toFixed(0)}g</p>
+                        <p>Received Weight: ${receivedWeight.toFixed(0)}g</p>
+                        ${receivedWeight > orderedWeight ? 
+                            `<p>Extra Weight: ${(receivedWeight - orderedWeight).toFixed(0)}g</p>` : 
+                            `<p>Missing Weight: ${(orderedWeight - receivedWeight).toFixed(0)}g</p>`
+                        }
+                        <p>Price per gram as per app: AED${gramPrice.toFixed(4)}</p>
                         <p>Customer should pay: AED${expectedPrice.toFixed(2)}</p>
                         <p>Customer paid: AED${actualPrice.toFixed(2)}</p>
                         <p>Refund: AED${refund.toFixed(2)}</p>
                     </div>
                 `;
             }
-
             resultHTML += `
                 <h3>Total</h3>
-                <p><strong>Total Refund:</strong> AED${(totalActualPrice - totalExpectedPrice).toFixed(2)}</p>
+                <p><strong>Total Refund:</strong> AED${totalRefund.toFixed(2)}</p>
             `;
-            
             document.getElementById('result').innerHTML = resultHTML;
         });
     </script>
