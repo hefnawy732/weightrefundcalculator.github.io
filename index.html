@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Refund Calculator</title>
     <style>
         img {
-            width: 50px;
+            width: 35px;
         }
         body {
             font-family: Arial, sans-serif;
@@ -150,6 +151,12 @@
             `;
             container.appendChild(itemDiv);
             itemCounter++;
+
+            // Disable mouse wheel on added input fields
+            disableMouseWheel(`#orderedWeight${itemCounter-1}`);
+            disableMouseWheel(`#pricePerApp${itemCounter-1}`);
+            disableMouseWheel(`#receivedWeight${itemCounter-1}`);
+            disableMouseWheel(`#actualPrice${itemCounter-1}`);
         });
 
         document.getElementById('calculateRefundButton').addEventListener('click', function() {
@@ -210,6 +217,22 @@
             `;
             document.getElementById('result').innerHTML = resultHTML;
         });
+
+        function disableMouseWheel(selector) {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                element.addEventListener('wheel', function(event) {
+                    event.preventDefault();
+                });
+            });
+        }
+
+        // Disable mouse wheel on initial fields
+        disableMouseWheel('#orderNumber');
+        disableMouseWheel('#orderedWeight');
+        disableMouseWheel('#pricePerApp');
+        disableMouseWheel('#receivedWeight');
+        disableMouseWheel('#actualPrice');
     </script>
 </body>
 </html>
