@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Refund Calculator</title>
     <style>
+        img {
+            width: 50px;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -83,6 +86,7 @@
 </head>
 <body>
     <div class="container">
+        <img src="images/elGrocerIcone.png" class="img-fluid" alt="...">
         <h1>Refund Calculator</h1>
         <div class="form-group">
             <label for="orderNumber">Order Number:</label>
@@ -180,7 +184,7 @@
                     refund = actualPrice - expectedPrice;
                     refundType = 'Price Variance';
                 }
-
+    
                 totalRefund += refund;
 
                 resultHTML += `
@@ -193,7 +197,7 @@
                             `<p>Extra Weight: ${(receivedWeight - orderedWeight).toFixed(0)}g</p>` : 
                             `<p>Missing Weight: ${(orderedWeight - receivedWeight).toFixed(0)}g</p>`
                         }
-                        <p>Price per gram as per app: AED${gramPrice.toFixed(4)}</p>
+                        <p>Price Per Gram As Per App: AED${gramPrice.toFixed(4)}</p>
                         <p>Customer should pay: AED${expectedPrice.toFixed(2)}</p>
                         <p>Customer paid: AED${actualPrice.toFixed(2)}</p>
                         <p>Refund: AED${refund.toFixed(2)}</p>
