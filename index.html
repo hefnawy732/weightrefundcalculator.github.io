@@ -210,7 +210,7 @@
                 <input type="text" id="itemName${itemCounter}">
                 <label for="orderedWeight${itemCounter}">Ordered Weight (g):</label>
                 <input type="number" id="orderedWeight${itemCounter}">
-                <label for="pricePerApp${itemCounter}">Price As Per Shopper App (AED):</label>
+                <label for="pricePerApp${itemCounter}">Price as per Shopper APP (AED):</label>
                 <input type="number" id="pricePerApp${itemCounter}">
                 <label for="receivedWeight${itemCounter}">Received Weight (g):</label>
                 <input type="number" id="receivedWeight${itemCounter}">
@@ -230,13 +230,33 @@
             // Add event listener for remove button
             itemDiv.querySelector(`#removeButton${itemCounter-1}`).addEventListener('click', function() {
                 container.removeChild(itemDiv);
-                calculateRefund(); // Recalculate refund after removal
+                itemCounter--; // Decrement item counter
+                updateItemIDs(); // Update item IDs and refund details
             });
         });
 
         document.getElementById('calculateRefundButton').addEventListener('click', function() {
             calculateRefund();
         });
+
+        function updateItemIDs() {
+            const items = document.querySelectorAll('.item-box');
+            items.forEach((item, index) => {
+                const itemNumber = index + 1;
+                item.querySelector('label[for^="itemName"]').setAttribute('for', `itemName${itemNumber}`);
+                item.querySelector('input[id^="itemName"]').setAttribute('id', `itemName${itemNumber}`);
+                item.querySelector('label[for^="orderedWeight"]').setAttribute('for', `orderedWeight${itemNumber}`);
+                item.querySelector('input[id^="orderedWeight"]').setAttribute('id', `orderedWeight${itemNumber}`);
+                item.querySelector('label[for^="pricePerApp"]').setAttribute('for', `pricePerApp${itemNumber}`);
+                item.querySelector('input[id^="pricePerApp"]').setAttribute('id', `pricePerApp${itemNumber}`);
+                item.querySelector('label[for^="receivedWeight"]').setAttribute('for', `receivedWeight${itemNumber}`);
+                item.querySelector('input[id^="receivedWeight"]').setAttribute('id', `receivedWeight${itemNumber}`);
+                item.querySelector('label[for^="actualPrice"]').setAttribute('for', `actualPrice${itemNumber}`);
+                item.querySelector('input[id^="actualPrice"]').setAttribute('id', `actualPrice${itemNumber}`);
+                const removeButton = item.querySelector('button.remove-button');
+                removeButton.setAttribute('id', `removeButton${itemNumber}`);
+            });
+        }
 
         function calculateRefund() {
             const orderNumber = document.getElementById('orderNumber').value;
@@ -270,7 +290,7 @@
                 } else if (receivedWeight < orderedWeight) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Less Weight';
-                }  else if (gramPrice != (actualPrice / receivedWeight)) {
+                } else if (gramPrice !== (actualPrice / receivedWeight)) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Price Variance';
                 }
