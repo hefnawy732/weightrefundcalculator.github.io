@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="styles.css">
     <title>Refund Calculator</title>
     <style>
+        /* ... existing styles ... */
         img {
             width: 35px;
         }
@@ -96,6 +97,7 @@
             border-radius: 12px;
             box-shadow: 0 6px 12px rgba(0,0,0,0.1);
             transition: box-shadow 0.3s, transform 0.3s;
+            position: relative; /* Allow positioning of the remove button */
         }
         .item-box:hover {
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -123,6 +125,21 @@
         }
         .item-box p strong {
             color: #000000;
+        }
+        .remove-button {
+            background-color: #28a745; /* Green color for remove button */
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            position: absolute; /* Position it in the top right corner */
+            top: 10px;
+            right: 10px;
+        }
+        .remove-button:hover {
+            background-color: #218838; /* Darker green on hover */
         }
         @media (max-width: 600px) {
             .container {
@@ -193,12 +210,13 @@
                 <input type="text" id="itemName${itemCounter}">
                 <label for="orderedWeight${itemCounter}">Ordered Weight (g):</label>
                 <input type="number" id="orderedWeight${itemCounter}">
-                <label for="pricePerApp${itemCounter}">Price as per Shopper APP (AED):</label>
+                <label for="pricePerApp${itemCounter}">Price As Per Shopper App (AED):</label>
                 <input type="number" id="pricePerApp${itemCounter}">
                 <label for="receivedWeight${itemCounter}">Received Weight (g):</label>
                 <input type="number" id="receivedWeight${itemCounter}">
                 <label for="actualPrice${itemCounter}">Actual Price (AED):</label>
                 <input type="number" id="actualPrice${itemCounter}">
+                <button class="remove-button" id="removeItem${itemCounter}">Remove</button>
             `;
             container.appendChild(itemDiv);
             itemCounter++;
@@ -208,9 +226,20 @@
             disableMouseWheel(`#pricePerApp${itemCounter-1}`);
             disableMouseWheel(`#receivedWeight${itemCounter-1}`);
             disableMouseWheel(`#actualPrice${itemCounter-1}`);
+
+            // Add event listener to the remove button
+            document.getElementById(`removeItem${itemCounter-1}`).addEventListener('click', function() {
+                container.removeChild(itemDiv);
+                itemCounter--; // Decrement itemCounter
+                updateRefundDetails();
+            });
         });
 
         document.getElementById('calculateRefundButton').addEventListener('click', function() {
+            updateRefundDetails();
+        });
+
+        function updateRefundDetails() {
             const orderNumber = document.getElementById('orderNumber').value;
             const shopperId = document.getElementById('shopperId').value;
             const storeName = document.getElementById('storeName').value;
@@ -221,13 +250,14 @@
                 <p><strong>Store Name:</strong> ${storeName}</p>
             `;
             let totalRefund = 0;
+
             for (let i = 1; i < itemCounter; i++) {
-                const itemName = document.getElementById(`itemName${i}`).value || 'N/A';
-                const orderedWeight = parseFloat(document.getElementById(`orderedWeight${i}`).value) || 0;
-                const pricePerApp = parseFloat(document.getElementById(`pricePerApp${i}`).value) || 0;
-                const receivedWeight = parseFloat(document.getElementById(`receivedWeight${i}`).value) || 0;
-                const actualPrice = parseFloat(document.getElementById(`actualPrice${i}`).value) || 0;
-                const gramPrice = pricePerApp / orderedWeight;
+                const itemName = document.getElementById(`itemName${i}`)?.value || 'N/A';
+                const orderedWeight = parseFloat(document.getElementById(`orderedWeight${i}`)?.value) || 0;
+                const pricePerApp = parseFloat(document.getElementById(`pricePerApp${i}`)?.value) || 0;
+                const receivedWeight = parseFloat(document.getElementById(`receivedWeight${i}`)?.value) || 0;
+                const actualPrice = parseFloat(document.getElementById(`actualPrice${i}`)?.value) || 0;
+                const gramPrice = orderedWeight > 0 ? pricePerApp / orderedWeight : 0;
                 const expectedPrice = gramPrice * receivedWeight;
                 let refund = 0;
                 let refundType = '';
@@ -238,12 +268,11 @@
                 } else if (receivedWeight < orderedWeight) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Less Weight';
-                } else if (gramPrice != (actualPrice / receivedWeight)) {
+                } else if (gramPrice != 0 && gramPrice !== (actualPrice / receivedWeight)) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Price Variance';
                 }
 
-    
                 totalRefund += refund;
 
                 resultHTML += `
@@ -268,7 +297,7 @@
                 <p><strong>Total Refund:</strong> AED${totalRefund.toFixed(2)}</p>
             `;
             document.getElementById('result').innerHTML = resultHTML;
-        });
+        }
 
         function disableMouseWheel(selector) {
             const elements = document.querySelectorAll(selector);
