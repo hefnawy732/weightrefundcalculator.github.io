@@ -225,10 +225,10 @@
                 <input type="text" id="itemName${itemCounter}">
                 <label for="orderedWeight${itemCounter}">Ordered Weight (g):</label>
                 <input type="number" id="orderedWeight${itemCounter}">
+                <label for="pricePerApp${itemCounter}">Price As Per Shopper APP (AED):</label>
+                <input type="number" id="pricePerApp${itemCounter}">
                 <label for="receivedWeight${itemCounter}">Received Weight (g):</label>
                 <input type="number" id="receivedWeight${itemCounter}">
-                <label for="pricePerApp${itemCounter}">Price As Per Picker (AED):</label>
-                <input type="number" id="pricePerApp${itemCounter}">
                 <label for="actualPrice${itemCounter}">Actual Price (AED):</label>
                 <input type="number" id="actualPrice${itemCounter}">
                 <button class="remove-button" id="removeButton${itemCounter}">Remove</button>
@@ -294,7 +294,7 @@
                 // Avoid calculating if the item doesn't exist
                 if (!document.getElementById(`itemName${i}`)) continue;
 
-                const gramPrice = receivedWeight ? pricePerApp / receivedWeight : 0; // Prevent division by zero
+                const gramPrice = orderedWeight ? pricePerApp / orderedWeight : 0; // Prevent division by zero
                 const expectedPrice = gramPrice * receivedWeight;
                 let refund = 0;
                 let refundType = '';
@@ -305,9 +305,6 @@
                 } else if (receivedWeight < orderedWeight) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Less Weight';
-                } else if (gramPrice !== (actualPrice / receivedWeight)) {
-                    refund = actualPrice - expectedPrice;
-                    refundType = 'Price Variance';
                 } else if (gramPrice !== (actualPrice / receivedWeight)) {
                     refund = actualPrice - expectedPrice;
                     refundType = 'Price Variance';
@@ -325,7 +322,7 @@
                             `<p>Extra Weight: ${(receivedWeight - orderedWeight).toFixed(0)}g</p>` : 
                             `<p>Missing Weight: ${(orderedWeight - receivedWeight).toFixed(0)}g</p>`
                         }
-                        <p>Price Per Gram As Per Picker: AED${gramPrice.toFixed(4)}</p>
+                        <p>Price Per Gram As Per App: AED${gramPrice.toFixed(4)}</p>
                         <p>Customer should pay: AED${expectedPrice.toFixed(2)}</p>
                         <p>Customer has paid: AED${actualPrice.toFixed(2)}</p>
                         <p>Refund: AED${refund.toFixed(2)}</p>
@@ -358,4 +355,3 @@
     </script>
 </body>
 </html>
-
